@@ -34,7 +34,7 @@ public final class SoundCloud {
     
     public init(
         _ config: Config,
-        _ tokenDAO: any DAO<TokenResponse> = KeychainDAO<TokenResponse>("OAuthTokenResponse")
+        _ tokenDAO: any DAO<TokenResponse> = UserDefaultsDAO<TokenResponse>("OAuthTokenResponse")
     ) {
         self.config = config
         self.tokenDAO = tokenDAO
