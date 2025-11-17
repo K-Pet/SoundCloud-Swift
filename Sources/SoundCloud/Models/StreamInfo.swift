@@ -8,11 +8,13 @@
 public struct StreamInfo: Decodable {
     public let httpMp3128URL: String
     public let hlsMp3128URL: String
+    public let hlsAac160URL: String?
 }
 
 extension StreamInfo {
     internal enum CodingKeys: String, CodingKey {
         case httpMp3128URL = "httpMp3128Url"
         case hlsMp3128URL = "hlsMp3128Url"
+        case hlsAac160URL = "hlsAac160Url"
     }
 }
