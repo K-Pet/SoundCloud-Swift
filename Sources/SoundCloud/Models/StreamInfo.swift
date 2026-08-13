@@ -7,15 +7,28 @@
 
 /// Response from API containing URLs which the authenticated client can use to stream.
 ///
-/// - Important: The MP3 and Opus transcodings were removed by SoundCloud on 2025-11-15.
-/// Clients must use the AAC HLS transcodings, preferring ``hlsAAC160URL`` over ``hlsAAC96URL``.
-/// Some older tracks may not have AAC transcodings available.
+/// - Important: SoundCloud is migrating to AAC, but the migration is *not* complete.
+/// Prefer ``hlsAAC160URL``, then ``hlsAAC96URL``, then fall back to ``hlsMp3128URL``:
+/// as of 2026-08-05 SoundCloud state that tracks which haven't been re-transcoded
+/// "still being available on mp3 only for up to a year", and advise clients to
+/// "look for AAC first and MP3 second", as their own clients do.
+/// Opus has already been removed.
 /// See the [deprecation notice on the SoundCloud API repo](https://github.com/soundcloud/api/issues/441).
 public struct StreamInfo: Decodable {
-    @available(*, deprecated, message: "Use AAC transcodings.")
+    /// Progressive download.
+    ///
+    /// - Warning: Do not use for playback. SoundCloud is retiring this ahead of the
+    /// other transcodings and have "moved [it] to preview for a bit", so it can serve
+    /// a 30 second snippet in place of the full track.
+    @available(*, deprecated, message: "Progressive download is being retired and may serve a preview snippet.")
     public let httpMp3128URL: String?
 
-    @available(*, deprecated, message: "Use AAC transcodings.")
+    /// Still required as a fallback for tracks with no AAC transcoding yet.
+    ///
+    /// Deliberately *not* deprecated, despite being on SoundCloud's eventual removal
+    /// list: it remains the only way to play a large part of the back catalogue, and
+    /// marking it deprecated would mean suppressing a warning on the one code path
+    /// that has to use it. Revisit once AAC coverage is complete.
     public let hlsMp3128URL: String?
 
     /// "Optional, depending on availability"
@@ -41,9 +54,14 @@ extension StreamInfo {
 public extension StreamInfo {
     /// URLs for streaming the track in full, best quality first.
     ///
-    /// Excludes preview snippets, and excludes the transcodings SoundCloud removed in 2025.
+    /// AAC first, then HLS MP3 — SoundCloud's own guidance while the back catalogue is
+    /// still being re-transcoded (soundcloud/api#441). Tracks that never got an AAC
+    /// transcoding are expected to remain MP3-only into 2027.
+    ///
+    /// Excludes preview snippets, and excludes ``httpMp3128URL``: progressive download
+    /// is being retired first and can serve a 30 second snippet rather than the track.
     var fullStreamURLs: [String] {
-        [hlsAAC160URL, hlsAAC96URL].compactMap { $0 }
+        [hlsAAC160URL, hlsAAC96URL, hlsMp3128URL].compactMap { $0 }
     }
 
     /// `true` when SoundCloud only offered a snippet, meaning the track can't be played in full.
