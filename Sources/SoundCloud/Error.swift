@@ -13,7 +13,11 @@ public extension SoundCloud {
         case cancelledLogin
         case userNotAuthorized
         case network(StatusCode)
-        case decoding
+        /// The response body didn't match the expected model.
+        ///
+        /// Carries the underlying `DecodingError` and the raw body, so a schema change
+        /// on SoundCloud's side is diagnosable from a log instead of opaque.
+        case decoding(underlying: Swift.Error, responseBody: String?)
         case invalidURL
         case noInternet
         case refreshingExpiredAuthTokens

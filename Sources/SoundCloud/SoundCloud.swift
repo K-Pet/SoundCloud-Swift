@@ -390,10 +390,14 @@ private extension SoundCloud {
         guard !statusCode.errorOccurred else {
             throw Error.network(statusCode)
         }
-        guard let decodedObject = try? decoder.decode(T.self, from: data) else {
-            throw Error.decoding
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            throw Error.decoding(
+                underlying: error,
+                responseBody: String(data: data, encoding: .utf8)
+            )
         }
-        return decodedObject
     }
     
     func authorized<T>(_ scRequest: Request<T>) async throws -> URLRequest {

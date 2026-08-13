@@ -132,4 +132,11 @@ public let testNextProSubscription = User.Subscription(product: User.Subscriptio
 
 public var testSC = SoundCloud(SoundCloud.Config(clientId: "", clientSecret: "", redirectURI: ""))
 
-public let testStreamInfo = StreamInfo(httpMp3128URL: "", hlsMp3128URL: "", hlsAac160URL: "")
+// Mirrors what the API returns since the 2025-11-15 removal of the MP3 transcodings.
+public let testStreamInfo = StreamInfo(
+    httpMp3128URL: nil,
+    hlsMp3128URL: nil,
+    hlsAAC96URL: "",
+    hlsAAC160URL: "",
+    previewMp3128URL: nil
+)
